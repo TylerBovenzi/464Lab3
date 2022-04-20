@@ -3,27 +3,27 @@
 
 CC= gcc
 CFLAGS= -g -Wall
-LIBS = 
+LIBS = pollLib.c safeUtil.c
 
 
 all:   myClient myServer
 
-myClient: myClient.c networks.o gethostbyname.o
-	$(CC) $(CFLAGS) -o myClient myClient.c pdu.c networks.o gethostbyname.o $(LIBS)
+myClient: client.c networks.o gethostbyname.o
+	$(CC) $(CFLAGS) -o client client.c pdu.c networks.o gethostbyname.o $(LIBS)
 
-myServer: newServer.c networks.o gethostbyname.o
-	$(CC) $(CFLAGS) -o newServer myServer.c pdu.c networks.o gethostbyname.o $(LIBS)
+myServer: server.c networks.o gethostbyname.o
+	$(CC) $(CFLAGS) -o server server.c pdu.c networks.o gethostbyname.o $(LIBS)
 
 myPDU: pdu.c networks.o gethostbyname.o
-	$(CC) $(CFLAGS) -o pdu myServer.c networks.o gethostbyname.o $(LIBS)
-.c.o:
-	gcc -c $(CFLAGS) $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) -o pdu server.c networks.o gethostbyname.o $(LIBS)
+#.c.o:
+#	gcc -c $(CFLAGS) $< -o $@ $(LIBS)
 
 cleano:
 	rm -f *.o
 
 clean:
-	rm -f myServer myClient *.o
+	rm -f server client *.o
 
 
 

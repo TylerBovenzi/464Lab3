@@ -28,6 +28,7 @@ int checkArgs(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
+    printf("a");
 	int serverSocket = 0;   //socket descriptor for the server socket
 	int clientSocket = 0;   //socket descriptor for the client socket
 	int portNumber = 0;
@@ -40,7 +41,7 @@ int main(int argc, char *argv[])
 	// wait for client to connect
 	clientSocket = tcpAccept(serverSocket, DEBUG_FLAG);
 
-	while( recvFromClient(clientSocket) > 0){}
+	while( recvFromClient(clientSocket) >= 0){}
 	
 	/* close the sockets */
 	close(clientSocket);
@@ -58,9 +59,10 @@ int recvFromClient(int clientSocket)
     //do {
         //now get the data from the client_socket
         memset(buf, 0, MAXBUF);
-        if ((messageLen = recvPDU(clientSocket, buf, MAXBUF)) < 0) {
+        if ((messageLen = recvPDU(clientSocket, (uint8_t*)buf, MAXBUF)) < 0) {
             perror("recv call");
             exit(-1);
+
         }
        if(messageLen == 0){
             return 0;
@@ -71,6 +73,7 @@ int recvFromClient(int clientSocket)
         printf("Message received, length: %d Data: %s\n", messageLen, buf);
         if (sendPDU(clientSocket, (uint8_t*)buf, MAXBUF) < 0){
             perror("send issue");
+            printf("Test");
             exit(-1);
         }
 

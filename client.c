@@ -5,17 +5,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/uio.h>
-#include <sys/time.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <string.h>
-#include <strings.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
 
 #include "networks.h"
 #include "pdu.h"
@@ -32,13 +23,9 @@ int main(int argc, char * argv[])
 	
 	checkArgs(argc, argv);
 
-	/* set up the TCP Client socket  */
 	socketNum = tcpClientSetup(argv[1], argv[2], DEBUG_FLAG);
-	
-	sendToServer(socketNum);
 
     while(sendToServer(socketNum ) > 0){}
-
 
 	close(socketNum);
 	
@@ -54,7 +41,7 @@ int sendToServer(int socketNum)
 	sendLen = readFromStdin(sendBuf);
 	printf("read: %s string len: %d (including null)\n", sendBuf, sendLen);
 	
-	sent =  sendPDU(socketNum, sendBuf, sendLen);
+	sent =  sendPDU(socketNum, (uint8_t *)sendBuf, sendLen);
 	if (sent < 0)
 	{
 		perror("send call");
