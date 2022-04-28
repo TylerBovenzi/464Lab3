@@ -238,6 +238,8 @@ void userBroadcast(int socketNum, int inLen, char *inBuf){
         index++;
         outIndex++;
     }
+
+
     sendPDU(socketNum, outBuf, outIndex);
 }
 
@@ -252,7 +254,14 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
     outIndex = 2+myHandleLength;
     int targets = inBuf[3] - 48;
     int target;
-
+    if((targets > 9) || (targets < 1)){
+        printf("Number of targets must be 1-9\n");
+        return;
+    }
+    if((inBuf[4] != ' ')){
+        printf("Invalid Syntax in Target Declaration\n");
+        return;
+    }
     outBuf[outIndex] = (uint8_t) targets;
     outIndex++;
 
@@ -262,16 +271,39 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
 
 
     for(target = 0; target<targets; target++){
+        handlelength = 0;
+        if((inBuf[index] == ' ') || (!inBuf[index])){
+            printf("Incorrect Number of Arguments\n");
+            return;
+        }
         int currentStart = outIndex;
-        while(inBuf[index] != ' '){
+        while((inBuf[index]) && (inBuf[index] != ' ')){
+            if(handlelength > 99){
+                printf("Target %d is invalid\n", 1+target);
+                return;
+            }
+
             outIndex++;
             outBuf[outIndex] = inBuf[index];
             index++;
             handlelength++;
+
+        }
+        if(!inBuf[index]) {
+            if(target == targets-1 ) {
+                outBuf[currentStart] = handlelength;
+                outBuf[outIndex + 1] = 0;
+                outIndex++;
+                break;
+            }
+            else {
+                printf("Incorrect Number of Arguments\n");
+                return;
+            }
         }
         outBuf[currentStart] = handlelength;
         outIndex++;
-        handlelength = 0;
+
         index++;
     }
 
@@ -289,40 +321,20 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
         index++;
         outIndex++;
     }
-
+    for(int i =0; i<outIndex;i++){
+        printf("%c", outBuf[i]>=48?outBuf[i]:outBuf[i]+48);
+    }
+    printf("\n");
     sendPDU(socketNum, outBuf, outIndex);
-//
-//    printf("\n");
-//    for(int i =0;i<outIndex;i++){
-//        if(outBuf[i] > 122){
-//            printf("%d", outBuf[i]);
-//        } else
-//        printf("%c", outBuf[i]>=48?outBuf[i]:48+outBuf[i]);
-//        fflush(stdout);
-//    }
-//    printf("\n");
-//
-//
-//
-//
-//    outIndex = 2+myHandleLength;
-//    while(inBuf[index]) {
-//        if(outIndex == 2+myHandleLength+200){
-//            sendPDU(socketNum, outBuf, outIndex);
-//            printf("Sent Broadcast\n");
-//            outIndex = 2+myHandleLength;
-//        }
-//        outBuf[outIndex] = inBuf[index];
-//        index++;
-//        outIndex++;
-//    }
-//    sendPDU(socketNum, outBuf, outIndex);
-//    printf("Sent Broadcast\n");
+}
+
+void sendInputError(){
+    printf("Please use a valid command:\n\t %%M: Multicast\n\t %%B: Broadcast\n\t %%L: List Handles\n\t %%E: Exit\n$: ");
+    fflush(stdout);
 }
 
 
-void recvUserInput(int socketNum)
-{
+void recvUserInput(int socketNum){
 
 	char inBuf[MAXBUF];
     int inLen = readFromStdin(inBuf);
@@ -331,8 +343,15 @@ void recvUserInput(int socketNum)
     }
 
     if(inBuf[0] != '%'){
-        printf("Please use a valid command:\n\t %%M: Multicast\n\t %%B: Broadcast\n\t %%L: List Handles\n\t %%E: Exit\n");
+        sendInputError();
         return;
+    }
+
+    if(inLen > 3){
+        if(inBuf[2]!=' ') {
+            sendInputError();
+            return;
+        }
     }
 
     switch(inBuf[1]) {
@@ -366,6 +385,10 @@ void recvUserInput(int socketNum)
 
         case 'e'  :
             userExit(socketNum);
+            return;
+
+        default:
+            sendInputError();
             return;
     }
 

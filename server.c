@@ -153,6 +153,7 @@ int recvFromClient(int clientSocket)
                     char badHandlePDU[1 + 1 + 100];
                     badHandlePDU[0] = 7;
                     badHandlePDU[1] = (char)currentHandleLen;
+
                     memcpy(&badHandlePDU[2], &buf[index], currentHandleLen);
                     sendPDU(clientSocket, badHandlePDU, 2+currentHandleLen);
                 } else {
