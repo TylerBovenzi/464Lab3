@@ -317,6 +317,8 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
     while(inBuf[index]) {
         if(outIndex == pdudatastart+1+200){
             //outBuf[pdudatastart] = outIndex - (pdudatastart);
+            outBuf[outIndex] = 0;
+            outIndex++;
             sendPDU(socketNum, outBuf, outIndex);
             //outIndex = pdudatastart+1;
             outIndex = pdudatastart;
