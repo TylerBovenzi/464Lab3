@@ -168,7 +168,7 @@ int clientControl(int serverSocket){
 }
 
 int setUpConnection(char *handleInput, int socketNum){
-    char sendBuf[2+MAXBUF];   //data buffer
+    char sendBuf[MAXBUF];   //data buffer
     int sent = 0;            //actual amount of data sent/* get the data and send it   */
 
     sendBuf[0] = (char)1;
@@ -178,6 +178,11 @@ int setUpConnection(char *handleInput, int socketNum){
     myHandleLength = (int)size;
     if(size == 0 || size > 100){
         printf("Bad Handle Length. Exiting..\n");
+        return 0;
+    }
+    char first = handleInput[0];
+    if((first < 66) || (first > 122)){
+        printf("First Character of Handle must be a letter\n");
         return 0;
     }
     sendBuf[1] =(char) size;
