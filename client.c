@@ -85,7 +85,7 @@ int recvFromServer(int serverSocket)
             fflush(stdout);
             break;
 
-        case 5  :
+        case 5  :   //Multicast received by client
             senderLen = buf[1];
             printf("\n");
             index =0;
@@ -99,8 +99,7 @@ int recvFromServer(int serverSocket)
             for(targets = 0; targets < numTargets; targets++){
                 index += 1 + buf[index];
             }
-            //index++;
-            while(index <messageLen){
+            while(index < messageLen){
                 printf("%c", buf[index]);
                 index++;
             }
@@ -239,15 +238,20 @@ void userBroadcast(int socketNum, int inLen, char *inBuf){
         outIndex++;
     }
 
-
+    outBuf[outIndex] = 0;
+    outIndex++;
+    int i;
     sendPDU(socketNum, outBuf, outIndex);
+    for(i =0; i<outIndex; i++)
+        printf("%c", outBuf[i]>48? outBuf[i]:outBuf[i]+48);
+    printf("\n");
 }
 
 void userMulticast(int socketNum, int inLen, char *inBuf){
     int outIndex;
     int index = 5;
     int handlelength = 0;
-    uint8_t outBuf[1 + 1 + 100 + 9 + 900 + 200];    //Flag + send handle + 9 client handle + message
+    uint8_t outBuf[1 + 1 + 100 + 9 + 900 + 200 + 1];    //Flag + send handle + 9 client handle + message
     outBuf[0] = 5;
     outBuf[1] = (uint8_t)myHandleLength;
     memcpy(&outBuf[2], myHandle, myHandleLength);
@@ -259,7 +263,7 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
         return;
     }
     if((inBuf[4] != ' ')){
-        printf("Invalid Syntax in Target Declaration\n");
+        printf("Number of targets must be 1-9\n");
         return;
     }
     outBuf[outIndex] = (uint8_t) targets;
@@ -308,21 +312,27 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
     }
 
     int pdudatastart = outIndex;
-    outIndex++;
+    //outIndex++;
 
     while(inBuf[index]) {
         if(outIndex == pdudatastart+1+200){
-            outBuf[pdudatastart] = outIndex - (pdudatastart);
+            //outBuf[pdudatastart] = outIndex - (pdudatastart);
             sendPDU(socketNum, outBuf, outIndex);
-            outIndex = pdudatastart+1;
+            //outIndex = pdudatastart+1;
+            outIndex = pdudatastart;
         }
-        outBuf[pdudatastart] = outIndex - (pdudatastart);
+        //outBuf[pdudatastart] = outIndex - (pdudatastart);
         outBuf[outIndex] = inBuf[index];
         index++;
         outIndex++;
     }
-
+    outBuf[outIndex] = 0;
+    outIndex++;
     sendPDU(socketNum, outBuf, outIndex);
+    int i;
+    for(i =0; i<outIndex; i++)
+        printf("%c", outBuf[i]>48? outBuf[i]:outBuf[i]+48);
+    printf("\n");
 }
 
 void sendInputError(){
