@@ -321,10 +321,7 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
         index++;
         outIndex++;
     }
-    for(int i =0; i<outIndex;i++){
-        printf("%c", outBuf[i]>=48?outBuf[i]:outBuf[i]+48);
-    }
-    printf("\n");
+
     sendPDU(socketNum, outBuf, outIndex);
 }
 
