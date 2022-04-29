@@ -323,7 +323,7 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
     //outIndex++;
 
     while(inBuf[index]) {
-        if(outIndex == pdudatastart+1+200){
+        if(outIndex == pdudatastart+200){
             //outBuf[pdudatastart] = outIndex - (pdudatastart);
             outBuf[outIndex] = 0;
             outIndex++;
