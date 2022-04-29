@@ -136,13 +136,12 @@ int recvFromClient(int clientSocket)
             memcpy(sender, &buf[2], buf[1]);
             sender[(int)buf[1]] = 0;
             for(client = 0; client < clientList->size; client++)
-                if(strcmp(getHandleAtIndex(clientList,client),sender)) {
-                    sendPDU(getSocketAtIndex(clientList, client), buf, messageLen);
+                if(strcmp(getHandleAtIndex(clientList,client),sender) != 0) {
+                    sendPDU(getSocketAtIndex(clientList, client), (uint8_t *)buf, messageLen);
                 }
             break;
 
         case 5  :
-            printf("Multicast\n");
             targets = (int)buf[2+buf[1]];
             int index = 3+buf[1];
             for(client =0; client < targets; client++){
@@ -155,11 +154,11 @@ int recvFromClient(int clientSocket)
                     badHandlePDU[1] = (char)currentHandleLen;
 
                     memcpy(&badHandlePDU[2], &buf[index], currentHandleLen);
-                    sendPDU(clientSocket, badHandlePDU, 2+currentHandleLen);
+                    sendPDU(clientSocket, (uint8_t *)badHandlePDU, 2+currentHandleLen);
                 } else {
                     int targetSocket = getSocketAtIndex(clientList, targetIndex);
 
-                    sendPDU(targetSocket, buf, messageLen);
+                    sendPDU(targetSocket, (uint8_t *)buf, messageLen);
                 }
                 index+=currentHandleLen;
             }
@@ -185,7 +184,7 @@ int recvFromClient(int clientSocket)
             handlePacket[0] = 12;
             int i;
             for(i = 0; i < ntohl(numClients); i++){
-                handlePacket[1] = (uint8_t)copyHandle(clientList, &handlePacket[2], i);
+                handlePacket[1] = (uint8_t)copyHandle(clientList, (char *)&handlePacket[2], i);
                 sendPDU(clientSocket, handlePacket, handlePacket[1]+2);
             }
 

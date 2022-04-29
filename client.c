@@ -78,8 +78,11 @@ int recvFromServer(int serverSocket)
                 printf("%c", buf[index+2]);
             }
             printf(": ");
-            for(index = senderLen + 2; index < messageLen; index++){
+            index = senderLen + 2;
+            //while ( index < messageLen){
+            while ( buf[index]){
                 printf("%c", buf[index]);
+                index++;
             }
             printf("\n$: ");
             fflush(stdout);
@@ -109,7 +112,7 @@ int recvFromServer(int serverSocket)
 
         case 7  :
             memcpy(handleBuf, &buf[2],buf[1]);
-            handleBuf[buf[1]] = 0;
+            handleBuf[(uint8_t)buf[1]] = 0;
             printf("\nClient with handle %s does not exist", handleBuf);
             printf("\n$: ");
             fflush(stdout);
@@ -128,7 +131,7 @@ int recvFromServer(int serverSocket)
 
         case 12  :
             memcpy(handleBuf, &buf[2],buf[1]);
-            handleBuf[buf[1]] = 0;
+            handleBuf[(uint8_t)buf[1]] = 0;
             printf("\t%s\n", handleBuf);
             fflush(stdout);
             break;
@@ -230,7 +233,10 @@ void userBroadcast(int socketNum, int inLen, char *inBuf){
     outIndex = 2+myHandleLength;
     while(inBuf[index]) {
         if(outIndex == 2+myHandleLength+200){
+            outBuf[outIndex] = 0;
+            outIndex++;
             sendPDU(socketNum, outBuf, outIndex);
+
             outIndex = 2+myHandleLength;
         }
         outBuf[outIndex] = inBuf[index];
@@ -240,11 +246,8 @@ void userBroadcast(int socketNum, int inLen, char *inBuf){
 
     outBuf[outIndex] = 0;
     outIndex++;
-    int i;
     sendPDU(socketNum, outBuf, outIndex);
-    for(i =0; i<outIndex; i++)
-        printf("%c", outBuf[i]>48? outBuf[i]:outBuf[i]+48);
-    printf("\n");
+
 }
 
 void userMulticast(int socketNum, int inLen, char *inBuf){
@@ -331,10 +334,6 @@ void userMulticast(int socketNum, int inLen, char *inBuf){
     outBuf[outIndex] = 0;
     outIndex++;
     sendPDU(socketNum, outBuf, outIndex);
-    int i;
-    for(i =0; i<outIndex; i++)
-        printf("%c", outBuf[i]>48? outBuf[i]:outBuf[i]+48);
-    printf("\n");
 }
 
 void sendInputError(){
