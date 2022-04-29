@@ -10,7 +10,7 @@
 #include "pollLib.h"
 #include "networks.h"
 #include "pdu.h"
-#define MAXBUF 1024
+#define MAXBUF 1400
 #define DEBUG_FLAG 1
 
 
@@ -99,7 +99,7 @@ int recvFromServer(int serverSocket)
             for(targets = 0; targets < numTargets; targets++){
                 index += 1 + buf[index];
             }
-            index++;
+            //index++;
             while(index <messageLen){
                 printf("%c", buf[index]);
                 index++;
