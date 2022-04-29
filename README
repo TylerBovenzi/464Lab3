@@ -1,0 +1,11 @@
+464 Program 2
+
+Author: Tyler Bovenzi
+Lecture Section 1 (9:40a)
+Lab Section 2 (12:00p)
+
+Note: To compile, simply type make
+
+To run use
+./server
+./cclient handle host-name port-number
